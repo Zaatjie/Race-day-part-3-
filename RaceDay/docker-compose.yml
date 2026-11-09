@@ -1,0 +1,13 @@
+# Optional: `docker compose up --build` starts the MVC app on http://localhost:8080
+# The API runs on your machine (dotnet run --project src/RaceDay.Api) and is reached via host.docker.internal.
+services:
+  web:
+    build:
+      context: .
+      dockerfile: src/RaceDay.Web/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      Api__BaseUrl: http://host.docker.internal:5100/
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

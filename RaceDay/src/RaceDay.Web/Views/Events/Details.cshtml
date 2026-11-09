@@ -1,0 +1,85 @@
+@model EventDetailsViewModel
+@{
+    var ev = Model.Event;
+    ViewData["Title"] = ev.EventName;
+    var role = Context.Session.GetRole();
+    var past = ev.EventDate.Date < DateTime.Today;
+    var categories = ev.Categories ?? new List<CategoryDto>();
+}
+<a asp-controller="Home" asp-action="Index" class="rd-back"><i class="bi bi-arrow-left"></i> All events</a>
+
+<div class="card rd-card mb-4 overflow-hidden">
+    @if (!string.IsNullOrEmpty(ev.BannerUrl))
+    {
+        <img src="@ev.BannerUrl" class="rd-detail-banner" alt="Banner for @ev.EventName" />
+    }
+    else
+    {
+        <div class="rd-detail-banner rd-banner-placeholder"><i class="bi @Display.TypeIcon(ev.EventType)"></i></div>
+    }
+    <div class="card-body p-4">
+        <span class="rd-chip mb-2"><i class="bi @Display.TypeIcon(ev.EventType)"></i> @ev.EventType · @ev.Distance.ToString("0.##") km</span>
+        <h1 class="rd-h2">@ev.EventName</h1>
+        <p class="rd-meta"><i class="bi bi-calendar3"></i> @ev.EventDate.ToString("dddd, d MMMM yyyy")
+            &nbsp;·&nbsp; <i class="bi bi-geo-alt"></i> @ev.Location
+            @if (!string.IsNullOrEmpty(ev.OrganiserName)) { <text>&nbsp;·&nbsp; <i class="bi bi-person-badge"></i> Organised by @ev.OrganiserName</text> }
+        </p>
+        @if (!string.IsNullOrWhiteSpace(ev.Description)) { <p class="mb-0">@ev.Description</p> }
+    </div>
+</div>
+
+<h2 class="rd-h3 mb-3">Categories</h2>
+
+@if (!categories.Any())
+{
+    <div class="alert alert-info">The organiser hasn't added any categories to this event yet.</div>
+}
+else if (role == "Participant" && !past)
+{
+    <form asp-controller="Events" asp-action="Enrol" method="post">
+        <input type="hidden" name="eventId" value="@ev.EventId" />
+        <div class="list-group rd-list mb-3">
+            @foreach (var c in categories)
+            {
+                var already = Model.EnrolledCategoryIds.Contains(c.CategoryId);
+                <label class="list-group-item d-flex align-items-center gap-3 @(already ? "disabled" : "")">
+                    <input class="form-check-input mt-0" type="radio" name="categoryId" value="@c.CategoryId" disabled="@already" />
+                    <span class="flex-grow-1">
+                        <strong>@c.CategoryName</strong><br />
+                        <small class="rd-meta">@c.Distance.ToString("0.##") km · up to @c.MaxParticipants participants</small>
+                    </span>
+                    @if (already) { <partial name="_StatusBadge" model='"Enrolled"' /> }
+                    <span class="rd-price">R @c.EntryFee.ToString("0.00")</span>
+                </label>
+            }
+        </div>
+        <button type="submit" class="btn btn-rd btn-lg"><i class="bi bi-check2-circle"></i> Enrol now</button>
+    </form>
+}
+else
+{
+    <div class="list-group rd-list mb-3">
+        @foreach (var c in categories)
+        {
+            <div class="list-group-item d-flex align-items-center gap-3">
+                <span class="flex-grow-1">
+                    <strong>@c.CategoryName</strong><br />
+                    <small class="rd-meta">@c.Distance.ToString("0.##") km · up to @c.MaxParticipants participants</small>
+                </span>
+                <span class="rd-price">R @c.EntryFee.ToString("0.00")</span>
+            </div>
+        }
+    </div>
+    if (role is null)
+    {
+        <a asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Context.Request.Path" class="btn btn-rd">Log in to enrol</a>
+    }
+    else if (role == "Organiser")
+    {
+        <p class="rd-meta">Organiser accounts can't enrol in events.</p>
+    }
+    else if (past)
+    {
+        <p class="rd-meta">This event has already taken place.</p>
+    }
+}

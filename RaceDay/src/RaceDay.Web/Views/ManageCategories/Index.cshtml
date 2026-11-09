@@ -1,0 +1,60 @@
+@model CategoriesPageViewModel
+@{ ViewData["Title"] = "Categories"; }
+<h1 class="rd-h2 mb-4">Categories</h1>
+
+@if (!Model.Events.Any())
+{
+    <partial name="_NoEvents" />
+}
+else
+{
+    await Html.RenderPartialAsync("_EventPicker", new EventPickerModel { Events = Model.Events, SelectedId = Model.Selected?.EventId, Controller = "ManageCategories" });
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card rd-card">
+                <div class="card-header rd-card-header">Categories for @Model.Selected?.EventName</div>
+                @{ var cats = Model.Selected?.Categories ?? new List<CategoryDto>(); }
+                @if (!cats.Any())
+                {
+                    <div class="card-body rd-meta">No categories yet. Add the first one using the form.</div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table rd-table align-middle mb-0">
+                            <thead><tr><th>Name</th><th>Distance</th><th>Max</th><th>Fee</th><th></th></tr></thead>
+                            <tbody>
+                            @foreach (var c in cats)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">@c.CategoryName</td>
+                                    <td>@c.Distance.ToString("0.##") km</td>
+                                    <td>@c.MaxParticipants</td>
+                                    <td>R @c.EntryFee.ToString("0.00")</td>
+                                    <td class="text-end text-nowrap">
+                                        <a asp-action="Edit" asp-route-eventId="@c.EventId" asp-route-id="@c.CategoryId" class="btn btn-outline-secondary btn-sm">Edit</a>
+                                        <form asp-action="Delete" asp-route-eventId="@c.EventId" asp-route-id="@c.CategoryId" method="post" class="d-inline"
+                                              onsubmit="return confirm('Remove the @c.CategoryName category? Participants enrolled in it will be removed too.');">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">Remove</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card rd-card"><div class="card-body p-4">
+                <h2 class="rd-h3 mb-3">Add a category</h2>
+                <form asp-action="Create" method="post" novalidate>
+                    <partial name="_CategoryForm" model="Model.Form" />
+                    <button type="submit" class="btn btn-rd"><i class="bi bi-plus-lg"></i> Add category</button>
+                </form>
+            </div></div>
+        </div>
+    </div>
+}

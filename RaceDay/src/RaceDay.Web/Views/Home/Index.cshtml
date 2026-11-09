@@ -1,0 +1,56 @@
+@model HomeViewModel
+@{ ViewData["Title"] = "Upcoming events"; }
+
+<section class="rd-hero">
+    <h1 class="rd-h1">Find your next <span>start line</span></h1>
+    <p>Browse upcoming runs, walks and rides, pick a category and lock in your place.</p>
+</section>
+
+<form method="get" asp-controller="Home" asp-action="Index" class="rd-filter card rd-card mb-4">
+    <div class="card-body row g-3 align-items-end">
+        <div class="col-md-4">
+            <label for="location" class="form-label">Location</label>
+            <input id="location" name="location" value="@Model.Location" class="form-control" placeholder="e.g. Cape Town" />
+        </div>
+        <div class="col-md-3">
+            <label for="type" class="form-label">Event type</label>
+            <select id="type" name="type" class="form-select">
+                <option value="">All types</option>
+                @foreach (var t in EventTypes.All)
+                {
+                    <option value="@t" selected="@(Model.Type == t)">@t</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label for="date" class="form-label">On date</label>
+            <input id="date" name="date" type="date" value="@(Model.Date?.ToString("yyyy-MM-dd"))" class="form-control" />
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <button type="submit" class="btn btn-rd flex-grow-1">Filter</button>
+            <a asp-action="Index" class="btn btn-outline-secondary" title="Clear filters" aria-label="Clear filters"><i class="bi bi-x-lg"></i></a>
+        </div>
+    </div>
+</form>
+
+@if (Model.ApiUnavailable)
+{
+    <div class="alert alert-warning">We couldn't load events right now. Please try again in a moment.</div>
+}
+else if (!Model.Events.Any())
+{
+    <div class="rd-empty">
+        <i class="bi bi-search"></i>
+        <h2 class="rd-h3">No upcoming events match</h2>
+        <p>Try a different location, type or date, or clear the filters.</p>
+    </div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var e in Model.Events)
+        {
+            <div class="col-md-6 col-lg-4"><partial name="_EventCard" model="e" /></div>
+        }
+    </div>
+}

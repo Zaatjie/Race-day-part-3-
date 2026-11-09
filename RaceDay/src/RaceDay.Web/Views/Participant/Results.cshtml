@@ -1,0 +1,39 @@
+@model List<ResultDto>
+@{ ViewData["Title"] = "My results"; }
+<h1 class="rd-h2 mb-4">My results</h1>
+
+@if (!Model.Any())
+{
+    <div class="rd-empty">
+        <i class="bi bi-trophy"></i>
+        <h2 class="rd-h3">No results yet</h2>
+        <p>Your race history will appear here once an organiser publishes the results of an event you entered.</p>
+    </div>
+}
+else
+{
+    <div class="table-responsive card rd-card">
+        <table class="table rd-table align-middle mb-0">
+            <thead><tr><th>Event</th><th>Date</th><th>Category</th><th>Finish time</th><th>Position</th></tr></thead>
+            <tbody>
+            @foreach (var r in Model)
+            {
+                <tr>
+                    <td class="fw-semibold">@r.EventName</td>
+                    <td>@r.EventDate.ToString("d MMM yyyy")</td>
+                    <td>@r.CategoryName</td>
+                    @if (r.Status == "Finished")
+                    {
+                        <td class="rd-time">@Display.Time(r.FinishTime)</td>
+                        <td><strong>@r.Position</strong> out of @r.TotalFinishers finishers</td>
+                    }
+                    else
+                    {
+                        <td colspan="2"><partial name="_ResultBadge" model="r.Status" /></td>
+                    }
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

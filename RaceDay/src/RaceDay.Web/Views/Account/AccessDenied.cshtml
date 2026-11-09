@@ -1,0 +1,7 @@
+@{ ViewData["Title"] = "Access denied"; }
+<div class="rd-empty">
+    <i class="bi bi-lock"></i>
+    <h1 class="rd-h2">That page isn't for your account</h1>
+    <p>Your role doesn't have access to this area of RaceDay.</p>
+    <a href="@Url.Action(Context.Session.GetRole() == "Organiser" ? "Dashboard" : "Index", Context.Session.GetRole() == "Organiser" ? "Organiser" : "Home")" class="btn btn-rd">Take me home</a>
+</div>

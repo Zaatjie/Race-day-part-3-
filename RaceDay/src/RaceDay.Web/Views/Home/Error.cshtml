@@ -1,0 +1,8 @@
+@model ErrorViewModel
+@{ ViewData["Title"] = Model.Title; }
+<div class="rd-empty">
+    <i class="bi bi-exclamation-octagon"></i>
+    <h1 class="rd-h2">@Model.Title</h1>
+    <p>@Model.Message</p>
+    <a asp-controller="Home" asp-action="Index" class="btn btn-rd">Back to RaceDay</a>
+</div>

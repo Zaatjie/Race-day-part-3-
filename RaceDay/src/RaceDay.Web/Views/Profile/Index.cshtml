@@ -1,0 +1,49 @@
+@model ProfileViewModel
+@{ ViewData["Title"] = "My profile"; }
+<h1 class="rd-h2 mb-4">My profile</h1>
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card rd-card text-center"><div class="card-body p-4">
+            @if (!string.IsNullOrEmpty(Model.ProfilePictureUrl))
+            {
+                <img src="@Model.ProfilePictureUrl" class="rd-avatar-lg mb-3" alt="Your profile picture" />
+            }
+            else
+            {
+                <div class="rd-avatar-lg rd-avatar-placeholder mb-3"><i class="bi bi-person-fill"></i></div>
+            }
+            <h2 class="rd-h3 mb-0">@Model.FullName</h2>
+            <p class="rd-meta">@Model.Role · member since @Model.MemberSince.ToString("MMM yyyy")</p>
+            <form asp-action="UploadPicture" method="post" enctype="multipart/form-data">
+                <input type="file" name="picture" class="form-control form-control-sm mb-2" accept="image/jpeg,image/png,image/webp" required />
+                <button type="submit" class="btn btn-rd btn-sm w-100"><i class="bi bi-upload"></i> Upload picture</button>
+                <div class="form-text">JPG, PNG or WEBP, up to 5 MB.</div>
+            </form>
+        </div></div>
+    </div>
+    <div class="col-md-8">
+        <div class="card rd-card"><div class="card-body p-4">
+            <h2 class="rd-h3 mb-3">Personal information</h2>
+            <form asp-action="Update" method="post" novalidate>
+                <div asp-validation-summary="All" class="alert alert-danger"></div>
+                <input type="hidden" asp-for="Email" /><input type="hidden" asp-for="Role" />
+                <input type="hidden" asp-for="ProfilePictureUrl" /><input type="hidden" asp-for="MemberSince" />
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input class="form-control" value="@Model.Email" disabled />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="FullName" class="form-label"></label>
+                    <input asp-for="FullName" class="form-control" />
+                    <span asp-validation-for="FullName" class="text-danger small"></span>
+                </div>
+                <div class="mb-4">
+                    <label asp-for="Phone" class="form-label"></label>
+                    <input asp-for="Phone" class="form-control" autocomplete="tel" />
+                    <span asp-validation-for="Phone" class="text-danger small"></span>
+                </div>
+                <button type="submit" class="btn btn-rd">Save changes</button>
+            </form>
+        </div></div>
+    </div>
+</div>

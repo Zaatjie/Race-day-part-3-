@@ -1,0 +1,45 @@
+@model List<EventDto>
+@{ ViewData["Title"] = "My events"; }
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="rd-h2 mb-0">My events</h1>
+    <a asp-action="Create" class="btn btn-rd"><i class="bi bi-plus-lg"></i> New event</a>
+</div>
+
+@if (!Model.Any())
+{
+    <partial name="_NoEvents" />
+}
+else
+{
+    <div class="table-responsive card rd-card">
+        <table class="table rd-table align-middle mb-0">
+            <thead><tr><th>Event</th><th>Date</th><th>Location</th><th>Type</th><th>Distance</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var e in Model.OrderByDescending(x => x.EventDate))
+            {
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-3">
+                            @if (!string.IsNullOrEmpty(e.BannerUrl)) { <img src="@e.BannerUrl" class="rd-thumb" alt="" /> }
+                            else { <div class="rd-thumb rd-banner-placeholder"><i class="bi @Display.TypeIcon(e.EventType)"></i></div> }
+                            <span class="fw-semibold">@e.EventName</span>
+                        </div>
+                    </td>
+                    <td>@e.EventDate.ToString("d MMM yyyy")</td>
+                    <td>@e.Location</td>
+                    <td><span class="rd-chip"><i class="bi @Display.TypeIcon(e.EventType)"></i> @e.EventType</span></td>
+                    <td>@e.Distance.ToString("0.##") km</td>
+                    <td class="text-end text-nowrap">
+                        <a asp-controller="ManageCategories" asp-action="Index" asp-route-eventId="@e.EventId" class="btn btn-outline-secondary btn-sm">Categories</a>
+                        <a asp-action="Edit" asp-route-id="@e.EventId" class="btn btn-outline-secondary btn-sm">Edit</a>
+                        <form asp-action="Delete" asp-route-id="@e.EventId" method="post" class="d-inline"
+                              onsubmit="return confirm('Delete @e.EventName? This also removes its categories, enrolments and results.');">
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

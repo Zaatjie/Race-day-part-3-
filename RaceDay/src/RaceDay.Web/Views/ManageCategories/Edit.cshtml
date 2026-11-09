@@ -1,0 +1,14 @@
+@model CategoryFormViewModel
+@{ ViewData["Title"] = "Edit category"; }
+<a asp-action="Index" asp-route-eventId="@Model.EventId" class="rd-back"><i class="bi bi-arrow-left"></i> Categories</a>
+<div class="row"><div class="col-lg-7">
+<div class="card rd-card"><div class="card-body p-4">
+    <h1 class="rd-h2 mb-1">Edit category</h1>
+    @if (ViewBag.EventName is string en) { <p class="rd-meta mb-4">@en</p> }
+    <form asp-action="Edit" asp-route-eventId="@Model.EventId" asp-route-id="@Model.CategoryId" method="post" novalidate>
+        <partial name="_CategoryForm" model="Model" />
+        <button type="submit" class="btn btn-rd">Save changes</button>
+        <a asp-action="Index" asp-route-eventId="@Model.EventId" class="btn btn-link">Cancel</a>
+    </form>
+</div></div>
+</div></div>

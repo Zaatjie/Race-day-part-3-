@@ -1,0 +1,11 @@
+@model EventPickerModel
+<form method="get" asp-controller="@Model.Controller" asp-action="Index" class="rd-picker mb-4">
+    <label for="eventId" class="form-label fw-semibold mb-0">Event</label>
+    <select id="eventId" name="eventId" class="form-select" onchange="this.form.submit()">
+        @foreach (var e in Model.Events)
+        {
+            <option value="@e.EventId" selected="@(e.EventId == Model.SelectedId)">@e.EventName · @e.EventDate.ToString("d MMM yyyy")</option>
+        }
+    </select>
+    <noscript><button type="submit" class="btn btn-rd">Go</button></noscript>
+</form>

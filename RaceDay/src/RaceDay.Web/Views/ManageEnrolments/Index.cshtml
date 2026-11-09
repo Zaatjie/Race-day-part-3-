@@ -1,0 +1,54 @@
+@model EnrolmentsPageViewModel
+@{ ViewData["Title"] = "Enrolments"; }
+<h1 class="rd-h2 mb-4">Enrolments</h1>
+
+@if (!Model.Events.Any())
+{
+    <partial name="_NoEvents" />
+}
+else
+{
+    await Html.RenderPartialAsync("_EventPicker", new EventPickerModel { Events = Model.Events, SelectedId = Model.Selected?.EventId, Controller = "ManageEnrolments" });
+
+    var cats = Model.Selected?.Categories ?? new List<CategoryDto>();
+    if (cats.Any())
+    {
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            <a asp-action="Index" asp-route-eventId="@Model.Selected!.EventId" class="rd-pill @(Model.CategoryId is null ? "active" : "")">All categories</a>
+            @foreach (var c in cats)
+            {
+                <a asp-action="Index" asp-route-eventId="@Model.Selected!.EventId" asp-route-categoryId="@c.CategoryId"
+                   class="rd-pill @(Model.CategoryId == c.CategoryId ? "active" : "")">@c.CategoryName</a>
+            }
+        </div>
+    }
+
+    if (!Model.Enrolments.Any())
+    {
+        <div class="rd-empty">
+            <i class="bi bi-people"></i>
+            <h2 class="rd-h3">No enrolments yet</h2>
+            <p>Participants who enrol for this event will appear here.</p>
+        </div>
+    }
+    else
+    {
+        <p class="rd-meta">@Model.Enrolments.Count participant@(Model.Enrolments.Count == 1 ? "" : "s")</p>
+        <div class="table-responsive card rd-card">
+            <table class="table rd-table align-middle mb-0">
+                <thead><tr><th>Participant</th><th>Category</th><th>Enrolled on</th><th>Status</th></tr></thead>
+                <tbody>
+                @foreach (var e in Model.Enrolments)
+                {
+                    <tr>
+                        <td class="fw-semibold">@e.ParticipantName</td>
+                        <td>@e.CategoryName</td>
+                        <td>@e.EnrolmentDate.ToString("d MMM yyyy")</td>
+                        <td><partial name="_StatusBadge" model="e.Status" /></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+}

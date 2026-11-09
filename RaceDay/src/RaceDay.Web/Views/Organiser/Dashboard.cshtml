@@ -1,0 +1,64 @@
+@model DashboardViewModel
+@{ ViewData["Title"] = "Dashboard"; }
+<h1 class="rd-h2 mb-4">Organiser dashboard</h1>
+
+@if (!Model.Rows.Any())
+{
+    <partial name="_NoEvents" />
+}
+else
+{
+    var next = Model.Upcoming.FirstOrDefault();
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3"><div class="rd-stat"><span>@Model.TotalEvents</span>Events created</div></div>
+        <div class="col-6 col-lg-3"><div class="rd-stat"><span>@Model.TotalEnrolments</span>Total enrolments</div></div>
+        <div class="col-6 col-lg-3"><div class="rd-stat"><span>@Model.Upcoming.Count</span>Upcoming events</div></div>
+        <div class="col-6 col-lg-3"><div class="rd-stat"><span>@(next is null ? "None" : next.Event.EventDate.ToString("d MMM"))</span>Next event date</div></div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card rd-card">
+                <div class="card-header rd-card-header">Enrolments per event</div>
+                <div class="table-responsive">
+                    <table class="table rd-table align-middle mb-0">
+                        <thead><tr><th>Event</th><th>Date</th><th class="text-end">Enrolments</th><th></th></tr></thead>
+                        <tbody>
+                        @foreach (var r in Model.Rows.OrderByDescending(x => x.Event.EventDate))
+                        {
+                            <tr>
+                                <td class="fw-semibold">@r.Event.EventName</td>
+                                <td>@r.Event.EventDate.ToString("d MMM yyyy")</td>
+                                <td class="text-end"><span class="rd-count">@r.EnrolmentCount</span></td>
+                                <td class="text-end"><a asp-controller="ManageEnrolments" asp-action="Index" asp-route-eventId="@r.Event.EventId" class="btn btn-outline-secondary btn-sm">View</a></td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card rd-card">
+                <div class="card-header rd-card-header">Upcoming events</div>
+                @if (!Model.Upcoming.Any())
+                {
+                    <div class="card-body rd-meta">No upcoming events. Create one to get started.</div>
+                }
+                else
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var r in Model.Upcoming)
+                        {
+                            var days = (r.Event.EventDate.Date - DateTime.Today).Days;
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><strong>@r.Event.EventName</strong><br /><small class="rd-meta">@r.Event.EventDate.ToString("ddd, d MMM yyyy") · @r.Event.Location</small></span>
+                                <span class="rd-chip">@(days == 0 ? "Today" : days == 1 ? "Tomorrow" : $"in {days} days")</span>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
+}
